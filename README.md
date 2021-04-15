@@ -12,7 +12,8 @@ Plan
 
 * Study with![@Youngmi-Park](https://github.com/Youngmi-Park) 😝
 * Start Date: 2021/04/15
-* End Date : 2020/11/09
+* 목표 : 2,3,4단원은 4월 25일까지 / 5,6,7,8 은 5월 15일까지
+* End Date : 
 * Review : 
 
 | 목차 | 이름                               | 시작 | 종료 | 복습 |
