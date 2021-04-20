@@ -10,7 +10,7 @@ vocab_size = len(word_to_id)
 corpus_size = len(corpus)
 
 model = RnnlmGen()
-# model.load_params('../ch06/Rnnlm.pkl')
+model.load_params('../ch06/Rnnlm.pkl')      # 앞 단원에서 학습을 끝낸 가중치 매개변수를 읽어들임
 
 # start 문자와 skip 문자 설정
 start_word = 'you'      #  첫 단어를 you 로 설정
@@ -22,3 +22,6 @@ word_ids = model.generate(start_id, skip_ids)       # 문장 생성 -> 단어 ID
 txt = ' '.join([id_to_word[i] for i in word_ids])   # 각 배열 요소 사이에 ' ' 넣어서 문장 형태로 변환
 txt = txt.replace(' <eos>', '.\n')                  # <eos> 는 줄바꿈 문자로.
 print(txt)
+
+
+
