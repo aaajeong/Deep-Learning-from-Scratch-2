@@ -4,13 +4,13 @@ from common.layers import *
 from common.functions import sigmoid
 
 
-class RNN:
-    def __init__(self, Wx, Wh, b):
+class RNN:  # 한 단계만 수행
+    def __init__(self, Wx, Wh, b):      # 초기화 메서드 : 인수로 가중치 2개와 편향 1개를 받는다.
         self.params = [Wx, Wh, b]
-        self.grads = [np.zeros_like(Wx), np.zeros_like(Wh), np.zeros_like(b)]
-        self.cache = None
+        self.grads = [np.zeros_like(Wx), np.zeros_like(Wh), np.zeros_like(b)]       # 기울기 초기화
+        self.cache = None           # 역전파 계산 시 사용하는 중간 데이터를 담는다.
 
-    def forward(self, x, h_prev):
+    def forward(self, x, h_prev):       # 순전파
         Wx, Wh, b = self.params
         t = np.dot(h_prev, Wh) + np.dot(x, Wx) + b
         h_next = np.tanh(t)
@@ -18,7 +18,7 @@ class RNN:
         self.cache = (x, h_prev, h_next)
         return h_next
 
-    def backward(self, dh_next):
+    def backward(self, dh_next):        # 역전파
         Wx, Wh, b = self.params
         x, h_prev, h_next = self.cache
 
@@ -36,51 +36,60 @@ class RNN:
         return dx, dh_prev
 
 
-class TimeRNN:
-    def __init__(self, Wx, Wh, b, stateful=False):
+class TimeRNN:      # T 개의 RNN 계층
+    def __init__(self, Wx, Wh, b, stateful=False):      # 초기화 메서드 : 인수로 가중치, 편향, stateful 이라는 불리언 값을 받는다.
         self.params = [Wx, Wh, b]
         self.grads = [np.zeros_like(Wx), np.zeros_like(Wh), np.zeros_like(b)]
-        self.layers = None
+        self.layers = None      # layer : 다수의 RNN 계층을 리스트로 저장
 
-        self.h, self.dh = None, None
+        # h : forward() 을 불렀을 때의 마지막 RNN 계층의 은닉상태 저장.
+        # dh : backward() 을 불렀을 때 하나 앞 블록의 은닉 상태의 기울기 저장.
+        self.h, self.dh = None, None    
+
+        # stateful : true 이면 '상태가 있다' (= Time RNN 계층이 은닉 상태를 유지한다. 즉, 아무리 긴 시계열 데이터라도 Time RNN 계층의 순전파를 끊지 않고 전파한다는 의미
+        #          : false 이면 Time RNN 계층은 은닉 상태를 '영행렬' 로 초기화 (무상태)
         self.stateful = stateful
 
-    def forward(self, xs):
-        Wx, Wh, b = self.params
-        N, T, D = xs.shape
+    def forward(self, xs):      # 순전파
+        # xs : T개 분량의 시계열 데이터를 하나로 모은 것
+        # N(미니배치 크기), D(입력 벡터의 차원 수)
+        Wx, Wh, b = self.params     
+        N, T, D = xs.shape      # xs 의 형상
         D, H = Wx.shape
 
         self.layers = []
         hs = np.empty((N, T, H), dtype='f')
 
-        if not self.stateful or self.h is None:
+        if not self.stateful or self.h is None:     # 처음 호출 또는 stateful 이 False 일 때 -> 영행렬로
             self.h = np.zeros((N, H), dtype='f')
 
-        for t in range(T):
-            layer = RNN(*self.params)
-            self.h = layer.forward(xs[:, t, :], self.h)
+        for t in range(T):      # 총 T 회 반복 
+            layer = RNN(*self.params)       # RNN 계층을 생성
+            self.h = layer.forward(xs[:, t, :], self.h)     # 그동안 RNN 계층이 각 시각 t 의 은닉 상태 h 를 계산
+            # forward 가 불리면, 인스턴스 변수 h 에는 마지막 RNN 계층의 은닉상태가 저장된다.
+            # 그래서 다음번 forward() 가 호출 시 stateful 이 True 이면 먼저 저장된 h 값이 그대로 이용되고, False 이면 h 가 다시 영행렬로 초기화된다.
             hs[:, t, :] = self.h
-            self.layers.append(layer)
+            self.layers.append(layer)       # 생성한 layer 추가
 
         return hs
 
-    def backward(self, dhs):
+    def backward(self, dhs):        # 역전파
         Wx, Wh, b = self.params
         N, T, H = dhs.shape
         D, H = Wx.shape
 
-        dxs = np.empty((N, T, D), dtype='f')
+        dxs = np.empty((N, T, D), dtype='f')        # 하류로 흘러보낼 기울기를 담을 그릇
         dh = 0
         grads = [0, 0, 0]
-        for t in reversed(range(T)):
+        for t in reversed(range(T)):        # 순전파때와는 반대 순서로 RNN 계층의 backward 호출
             layer = self.layers[t]
             dx, dh = layer.backward(dhs[:, t, :] + dh)
-            dxs[:, t, :] = dx
+            dxs[:, t, :] = dx       # 각 시각의 기울기 dx 를 구해 dxs 의 해당 인덱스(시각)에 저장
 
             for i, grad in enumerate(layer.grads):
                 grads[i] += grad
 
-        for i, grad in enumerate(grads):
+        for i, grad in enumerate(grads):    # 가중치 매개변수에 대해서도 각 RNN 계층의 가중치 기울기를 합산하여 최종 결과를 self.grads 에 덮어쓴다.
             self.grads[i][...] = grad
         self.dh = dh
 
