@@ -18,14 +18,25 @@ class RnnlmGen(Rnnlm):
         x = start_id
         while len(word_ids) < sample_size:
             x = np.array(x).reshape(1, 1)
-            score = self.predict(x)     # 각 단어의 점수를 출력한다. (정규화 되기 전 값)
+            score = self.predict(x)     # 각 단어의 점수를 출력한다. (정규화 되기 전 값)0
+
+            # for i in score:
+            #     print(i, '번째 단어 점수: ', score)
+            
+
             p = softmax(score.flatten())        # 이 점수들을 소프트맥스 함수를 사용하여 정규화
+            # print("각 단어 확률 정규화 : " , p.reshape(100, 100))
 
             sampled = np.random.choice(len(p), size=1, p=p)     # 확률분포 p 로부터 다음 단어를 샘플링한다.
-            if (skip_ids is None) or (sampled not in skip_ids):
+            print('sampled : ', sampled) 
+            
+            if (skip_ids is None) or (sampled not in skip_ids): 
                 x = sampled
                 word_ids.append(int(x))
-
+        print("------------------------------")
+        print(x)
+        print(score)
+        print(word_ids)
         return word_ids
 
     def get_state(self):
