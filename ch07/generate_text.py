@@ -1,7 +1,8 @@
 # coding: utf-8
 import sys
 sys.path.append('..')
-from rnnlm_gen import RnnlmGen
+from rnnlm_gen_test import RnnlmGen
+# from rnnlm_gen import RnnlmGen
 from dataset import ptb
 
 
