@@ -295,3 +295,30 @@
 
   
 
+### 5. RNNLM 의 Trainer 클래스
+
+- 앞에서 학습을 수행해주는 코드를 RnnlmTrainer 클래스를 제공한다.
+
+- ```python
+  ...
+  from common.trainer import RnnlmTrainer
+  ...
+  
+  model = SimpleRnnlm(vocab_size, wordvec_size, hidden_size)
+  optimizer = SGD(lr)
+  trainer = RnnlmTrainer(model, optimzer)
+  
+  trainer.fit(xs, ts, max_epoch, batch_size, time_size)
+  ```
+
+  이 내부에서는 앞 코드에서 수행한 일련의 작업이 진행된다.
+
+  1. 미니배치를 '순차적'으로 만들어
+
+  2. 모델의 순전파/역전파 호출하고
+
+  3. 옵티마이저로 가중치를 갱신하고
+
+  4. 퍼플렉서티를 계산한다.
+
+     
