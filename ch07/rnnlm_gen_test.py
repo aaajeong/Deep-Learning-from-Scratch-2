@@ -15,8 +15,10 @@ class RnnlmGen(Rnnlm):
     def generate(self, start_id, skip_ids=None, sample_size=100):
         word_ids = [start_id]
 
-        x = start_id
-        while len(word_ids) < sample_size:
+        np.set_printoptions(threshold=sys.maxsize) # np 배열 한번에 출력
+
+        x = start_id        # 시작단어 - 예제에서는 'you'
+        while len(word_ids) < sample_size:      # 100개의 단어로 이루어진 문장을 만들때 까지.
             x = np.array(x).reshape(1, 1)
             score = self.predict(x)     # 각 단어의 점수를 출력한다. (정규화 되기 전 값)0
 
@@ -27,16 +29,22 @@ class RnnlmGen(Rnnlm):
             p = softmax(score.flatten())        # 이 점수들을 소프트맥스 함수를 사용하여 정규화
             # print("각 단어 확률 정규화 : " , p.reshape(100, 100))
 
-            sampled = np.random.choice(len(p), size=2, p=p)     # 확률분포 p 로부터 다음 단어를 샘플링한다.
-            print('sampled 2개 : ', sampled ) 
             
-            sampled = sampled[0]
+            p_test = np.argmax(p)
+            print('p_test : ', p_test)
+
+            sampled = np.random.choice(len(p), size=5, p=p)     # 확률분포 p 로부터 다음 단어를 샘플링한다.
+            sampled = np.argmax(p)
+            print('sampled 5개 : ', sampled , ', 확률 : ', p[sampled] ) 
+        
+            i = np.argmax(p[sampled])
+            sampled = sampled[i]
             if (skip_ids is None) or (sampled not in skip_ids): 
                 x = sampled
                 word_ids.append(int(x))
         print("------------------------------")
-        print(x)
-        print(score)
+        # print(x)
+        # print(score)
         print(word_ids)
         return word_ids
 
