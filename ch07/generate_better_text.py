@@ -1,6 +1,6 @@
 # coding: utf-8
 import sys
-sys.path.append('..')
+sys.path.append('/Users/ahjeong_park/Study/WegraLee/deep-learning-from-scratch-2')
 from common.np import *
 from rnnlm_gen import BetterRnnlmGen
 from dataset import ptb
@@ -12,7 +12,7 @@ corpus_size = len(corpus)
 
 
 model = BetterRnnlmGen()
-model.load_params('../ch06/BetterRnnlm.pkl')
+model.load_params('/Users/ahjeong_park/Study/Deep-Learning-from-Scratch-2/ch06/BetterRnnlm.pkl')
 
 # start 문자와 skip 문자 설정
 start_word = 'you'
