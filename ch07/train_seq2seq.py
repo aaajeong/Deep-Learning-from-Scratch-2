@@ -1,6 +1,6 @@
 # coding: utf-8
 import sys
-sys.path.append('..')
+sys.path.append('/Users/ahjeong_park/Study/WegraLee/deep-learning-from-scratch-2')  
 import numpy as np
 import matplotlib.pyplot as plt
 from dataset import sequence
@@ -14,11 +14,13 @@ from peeky_seq2seq import PeekySeq2seq
 # 데이터셋 읽기
 (x_train, t_train), (x_test, t_test) = sequence.load_data('addition.txt')
 char_to_id, id_to_char = sequence.get_vocab()
+print(x_train)
 
 # 입력 반전 여부 설정 =============================================
-is_reverse = False  # True
+is_reverse = True  # True
 if is_reverse:
     x_train, x_test = x_train[:, ::-1], x_test[:, ::-1]
+print(x_train)
 # ================================================================
 
 # 하이퍼파라미터 설정
@@ -30,8 +32,8 @@ max_epoch = 25
 max_grad = 5.0
 
 # 일반 혹은 엿보기(Peeky) 설정 =====================================
-model = Seq2seq(vocab_size, wordvec_size, hideen_size)
-# model = PeekySeq2seq(vocab_size, wordvec_size, hideen_size)
+# model = Seq2seq(vocab_size, wordvec_size, hideen_size)
+model = PeekySeq2seq(vocab_size, wordvec_size, hideen_size)
 # ================================================================
 optimizer = Adam()
 trainer = Trainer(model, optimizer)
@@ -52,6 +54,7 @@ for epoch in range(max_epoch):
     acc_list.append(acc)
     print('검증 정확도 %.3f%%' % (acc * 100))
 
+model.save_params('ReverseSeq.pkl')
 # 그래프 그리기
 x = np.arange(len(acc_list))
 plt.plot(x, acc_list, marker='o')
