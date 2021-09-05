@@ -1,6 +1,6 @@
 # coding: utf-8
 import sys
-sys.path.append('/Users/ahjeong_park/Study/WegraLee/deep-learning-from-scratch-2')  
+sys.path.append('/Users/ahjeong_park/Study/Deep-Learning-from-Scratch-2')  
 from common.time_layers import *
 from common.base_model import BaseModel
 
